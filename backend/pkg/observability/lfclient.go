@@ -67,11 +67,14 @@ func NewLangfuseClient(ctx context.Context, cfg *config.Config) (LangfuseClient,
 
 	tlsCfg := &tls.Config{InsecureSkipVerify: cfg.ExternalSSLInsecure}
 	if cfg.ExternalSSLCAPath != "" {
+		caPool, err := x509.SystemCertPool()
+		if err != nil {
+			caPool = x509.NewCertPool()
+		}
 		caPEM, err := os.ReadFile(cfg.ExternalSSLCAPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read CA certificate from '%s': %w", cfg.ExternalSSLCAPath, err)
 		}
-		caPool := x509.NewCertPool()
 		if !caPool.AppendCertsFromPEM(caPEM) {
 			return nil, fmt.Errorf("failed to parse CA certificate from '%s'", cfg.ExternalSSLCAPath)
 		}
