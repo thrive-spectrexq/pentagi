@@ -595,6 +595,7 @@ func (s *AuthService) authLoginCallback(c *gin.Context, stateData map[string]str
 		u, err := url.Parse(returnURI)
 		if err != nil {
 			response.Success(c, http.StatusOK, nil)
+			return
 		}
 		query := u.Query()
 		query.Add("status", "success")
