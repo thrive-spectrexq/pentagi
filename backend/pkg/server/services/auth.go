@@ -640,7 +640,22 @@ func (s *AuthService) parseState(c *gin.Context, state string) (map[string]strin
 		return nil, err
 	}
 
-	exp, err := strconv.ParseInt(stateData["exp"], 10, 64)
+	expStr, ok := stateData["exp"]
+	if !ok || expStr == "" {
+		err := fmt.Errorf("missing required field: exp")
+		logger.FromContext(c).WithError(err).Errorf("error on validating state data")
+		response.Error(c, response.ErrAuthInvalidAuthorizationState, err)
+		return nil, err
+	}
+
+	if _, ok := stateData["provider"]; !ok {
+		err := fmt.Errorf("missing required field: provider")
+		logger.FromContext(c).WithError(err).Errorf("error on validating state data")
+		response.Error(c, response.ErrAuthInvalidAuthorizationState, err)
+		return nil, err
+	}
+
+	exp, err := strconv.ParseInt(expStr, 10, 64)
 	if err != nil {
 		logger.FromContext(c).WithError(err).Errorf("error on parsing expiration time")
 		response.Error(c, response.ErrAuthInvalidAuthorizationState, err)
