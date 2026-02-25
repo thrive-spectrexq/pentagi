@@ -114,6 +114,22 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	db.Exec("INSERT INTO users (id, hash, mail, name, status, role_id) VALUES (1, 'testhash1', 'user1@test.com', 'User 1', 'active', 2)")
 	db.Exec("INSERT INTO users (id, hash, mail, name, status, role_id) VALUES (2, 'testhash2', 'user2@test.com', 'User 2', 'active', 2)")
 
+	// Create user_preferences table
+	db.Exec(`
+		CREATE TABLE user_preferences (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL UNIQUE,
+			preferences TEXT NOT NULL DEFAULT '{"favoriteFlows": []}',
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		)
+	`)
+
+	// Insert preferences for test users
+	db.Exec("INSERT INTO user_preferences (user_id, preferences) VALUES (1, '{\"favoriteFlows\": []}')")
+	db.Exec("INSERT INTO user_preferences (user_id, preferences) VALUES (2, '{\"favoriteFlows\": []}')")
+
 	return db
 }
 
