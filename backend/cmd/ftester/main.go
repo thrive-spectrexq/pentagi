@@ -70,7 +70,11 @@ func main() {
 	if err != nil && !errors.Is(err, obs.ErrNotConfigured) {
 		log.Fatalf("Unable to create telemetry client: %v\n", err)
 	}
-	defer otelclient.ForceFlush(context.Background())
+	defer func() {
+		if otelclient != nil {
+			otelclient.ForceFlush(context.Background())
+		}
+	}()
 
 	obs.InitObserver(ctx, lfclient, otelclient, []logrus.Level{
 		logrus.DebugLevel,
